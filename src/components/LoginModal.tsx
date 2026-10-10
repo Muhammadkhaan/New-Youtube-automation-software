@@ -385,18 +385,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     </>
                   )}
                 </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setUsername('admin');
-                    setPassword('Director@2026!');
-                  }}
-                  className="w-full py-1.5 px-3 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <KeyRound className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Fill Default Owner (admin / Director@2026!)</span>
-                </button>
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center gap-2 text-[11px] text-slate-500">
