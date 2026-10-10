@@ -261,11 +261,10 @@ export const UsersManagementView: React.FC<UsersManagementViewProps> = ({
       setUserToReset(null);
 
       setInfoModal({
-        title: 'Password Reset Verification Code Dispatched',
+        title: 'Password Reset Verification Email Dispatched',
         username: targetUser.username,
         email: targetUser.email,
-        otpCode: data.otpCode || data.simulatedOtp,
-        message: data.message || `A single-use 6-digit verification code was emailed to ${targetUser.email}. Valid for 15 minutes.`,
+        message: data.message || `A secure 6-digit verification code was emailed directly to ${targetUser.email}. Valid for 15 minutes.`,
       });
     } catch (err: any) {
       showToast(err.message || 'Error sending password reset email', 'error');

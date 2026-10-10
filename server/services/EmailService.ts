@@ -23,8 +23,12 @@ export class EmailService {
       this.transporter = nodemailer.createTransport({
         host,
         port,
-        secure,
+        secure, // true for 465 (SSL/TLS), false for 587 (STARTTLS)
         auth: { user, pass },
+        requireTLS: port === 587,
+        tls: {
+          rejectUnauthorized: process.env.SMTP_TLS_REJECT_UNAUTHORIZED !== 'false',
+        },
       });
     }
     return this.transporter;
@@ -42,9 +46,12 @@ export class EmailService {
     const transporter = this.getTransporter();
 
     if (!transporter) {
-      // In development or when SMTP is not configured, simulate delivery safely
-      // Never log sensitive contents or tokens in logs
-      console.log(`[EmailService] SMTP not configured. Simulated email delivery to [${options.to}] Subject: "${options.subject}"`);
+      if (process.env.NODE_ENV === 'production') {
+        console.error(`[EmailService] SMTP is not configured in production. Cannot send email to [${options.to}]`);
+        return { success: false, error: 'SMTP email server is not configured in production' };
+      }
+      // In development, simulate delivery safely
+      console.log(`[EmailService] [DEV MODE] SMTP not configured. Simulated email delivery to [${options.to}] Subject: "${options.subject}"`);
       return { success: true, simulated: true };
     }
 

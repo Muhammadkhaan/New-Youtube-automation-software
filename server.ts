@@ -2125,8 +2125,8 @@ app.post('/api/users/:id/send-reset', authMiddleware, async (req, res) => {
   // Invalidate any existing OTPs
   db.invalidateOtpsForUser(target.id);
 
-  // Generate 6-digit cryptographic OTP
-  const rawOtp = crypto.randomInt(100000, 999999).toString();
+  // Generate 6-digit cryptographic OTP (100000..999999)
+  const rawOtp = crypto.randomInt(100000, 1000000).toString();
   const otpHash = crypto.createHash('sha256').update(rawOtp).digest('hex');
   const expiresAt = Date.now() + 15 * 60 * 1000; // 15 mins
 
@@ -2156,10 +2156,8 @@ app.post('/api/users/:id/send-reset', authMiddleware, async (req, res) => {
 
   return res.json({
     success: true,
-    message: `Password reset verification code generated for ${target.email}.`,
-    simulatedOtp: rawOtp,
-    otpCode: rawOtp,
-    emailSimulated: emailResult.simulated,
+    message: `Password reset email dispatched to ${target.email}.`,
+    emailDelivered: !emailResult.simulated,
   });
 });
 
@@ -2202,8 +2200,8 @@ app.post('/api/auth/forgot-password/request-otp', async (req, res) => {
   // Invalidate older outstanding OTPs for this user
   db.invalidateOtpsForUser(user.id);
 
-  // Generate 6-digit numeric OTP
-  const rawOtp = crypto.randomInt(100000, 999999).toString();
+  // Generate 6-digit numeric OTP (100000..999999)
+  const rawOtp = crypto.randomInt(100000, 1000000).toString();
   const otpHash = crypto.createHash('sha256').update(rawOtp).digest('hex');
   const expiresAt = now + 10 * 60 * 1000; // 10 minutes
 
@@ -2235,9 +2233,7 @@ app.post('/api/auth/forgot-password/request-otp', async (req, res) => {
   return res.json({
     success: true,
     message: 'If an account matches that email address, a 6-digit verification code has been sent.',
-    simulatedOtp: rawOtp,
-    otpCode: rawOtp,
-    emailSimulated: emailResult.simulated,
+    emailDelivered: !emailResult.simulated,
   });
 });
 
@@ -2261,7 +2257,7 @@ app.post('/api/auth/forgot-password/verify-otp', (req, res) => {
     return res.status(400).json({ error: 'No active verification code found or code has expired.' });
   }
 
-  if (otpRecord.attempts >= 5) {
+  if (otpRecord.attempts >= 3) {
     otpRecord.usedAt = new Date().toISOString();
     db.savePasswordResetOtp(otpRecord);
     return res.status(400).json({ error: 'Maximum verification attempts exceeded. Please request a new code.' });
@@ -2271,8 +2267,9 @@ app.post('/api/auth/forgot-password/verify-otp', (req, res) => {
   if (suppliedOtpHash !== otpRecord.otpHash) {
     otpRecord.attempts += 1;
     db.savePasswordResetOtp(otpRecord);
+    const remaining = Math.max(0, 3 - otpRecord.attempts);
     return res.status(400).json({
-      error: `Invalid verification code. ${5 - otpRecord.attempts} attempt(s) remaining.`,
+      error: `Invalid verification code. ${remaining} attempt(s) remaining.`,
     });
   }
 
