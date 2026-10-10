@@ -1,0 +1,14 @@
+[
+  {
+    "id": "chan_sample_placeholder",
+    "title": "Sample YouTube Live Channel",
+    "handle": "@samplechannel",
+    "streamKey": "LIVE-XXXX-PLACEHOLDER-DO-NOT-USE",
+    "rtmpUrl": "rtmps://a.rtmps.youtube.com:443/live2",
+    "avatarUrl": "",
+    "channelUrl": "",
+    "connectedAt": "2026-01-01T00:00:00.000Z",
+    "connectionType": "direct",
+    "isDefault": true
+  }
+]

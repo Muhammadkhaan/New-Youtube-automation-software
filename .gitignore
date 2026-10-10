@@ -1,0 +1,19 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Runtime build artifact
+server.js
+
+# Runtime persistent storage and uploads
+uploads/*
+!uploads/.gitkeep
+data/*.json
+!data/youtube_channels.json.example
+data/.process_registry.json
+data/*.tmp
