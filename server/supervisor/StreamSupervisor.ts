@@ -421,7 +421,7 @@ export class StreamSupervisor {
           // Probe first item for audio
           const firstPath = path.join(UPLOADS_DIR, path.basename(playlist.items[0].filename));
           const firstComp = await MediaAnalyzer.analyze(firstPath);
-          hasAudio = !!(firstComp.audioCodec || firstComp.audioChannels);
+          hasAudio = firstComp.audioCodec !== undefined || firstComp.audioChannels !== undefined || !firstComp.reasons?.some(r => r.includes('No native audio'));
         }
       }
 
@@ -429,7 +429,7 @@ export class StreamSupervisor {
         const videoBasename = path.basename(config.videoFilename);
         inputPath = path.join(UPLOADS_DIR, videoBasename);
         const mediaComp = await MediaAnalyzer.analyze(inputPath);
-        hasAudio = !!(mediaComp.audioCodec || mediaComp.audioChannels);
+        hasAudio = mediaComp.audioCodec !== undefined || mediaComp.audioChannels !== undefined || !mediaComp.reasons?.some(r => r.includes('No native audio'));
       }
 
       // Format destinations

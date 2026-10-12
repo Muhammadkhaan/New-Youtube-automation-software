@@ -51,12 +51,12 @@ export class FfmpegCommandBuilder {
             builder.args.push('-shortest');
           }
         } else {
-          builder.args.push('-c:a', 'aac', '-b:a', '128k', '-ar', '44100');
+          builder.args.push('-c:a', 'copy');
         }
         break;
       case 'transcode_1080p_high':
         builder.args.push(
-          '-vf', 'scale=-2:1080',
+          '-vf', 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,format=yuv420p',
           '-c:v', 'libx264',
           '-preset', 'veryfast',
           '-b:v', '6000k',
@@ -73,7 +73,7 @@ export class FfmpegCommandBuilder {
         break;
       case 'transcode_1080p':
         builder.args.push(
-          '-vf', 'scale=-2:1080',
+          '-vf', 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,format=yuv420p',
           '-c:v', 'libx264',
           '-preset', 'veryfast',
           '-b:v', '4500k',
@@ -90,7 +90,7 @@ export class FfmpegCommandBuilder {
         break;
       case 'transcode_720p':
         builder.args.push(
-          '-vf', 'scale=-2:720',
+          '-vf', 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,format=yuv420p',
           '-c:v', 'libx264',
           '-preset', 'veryfast',
           '-b:v', '2500k',
@@ -107,7 +107,7 @@ export class FfmpegCommandBuilder {
         break;
       case 'transcode_480p':
         builder.args.push(
-          '-vf', 'scale=-2:480',
+          '-vf', 'scale=854:480:force_original_aspect_ratio=decrease,pad=854:480:(ow-iw)/2:(oh-ih)/2,format=yuv420p',
           '-c:v', 'libx264',
           '-preset', 'veryfast',
           '-b:v', '1200k',
@@ -124,13 +124,13 @@ export class FfmpegCommandBuilder {
         break;
       default:
         // Default safe fallback to copy
-        builder.args.push('-c:v', 'copy', '-c:a', 'aac', '-b:a', '128k', '-ar', '44100');
+        builder.args.push('-c:v', 'copy', '-c:a', 'copy');
         break;
     }
 
     // 7. Output destinations handling: Single or Multi-Destination Tee Muxer
-    // Ensure stream mappings reference 0:v for video and the correct audio input (0:a if present, 1:a if synthesized)
-    const audioSourceMap = options.hasAudio ? '0:a' : '1:a';
+    // Ensure stream mappings reference 0:v for video and the correct audio input (0:a? if present, 1:a if synthesized)
+    const audioSourceMap = options.hasAudio ? '0:a?' : '1:a';
     builder.args.push('-map', '0:v', '-map', audioSourceMap);
 
     if (options.destinations.length > 1) {
